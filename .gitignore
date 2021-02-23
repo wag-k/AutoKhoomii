@@ -10,3 +10,4 @@ obj/Debug/TemporaryGeneratedFile_*
 *.exe
 obj/*
 .vs/*
+*.pdb

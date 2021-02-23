@@ -18,17 +18,9 @@ namespace AutoKhoomii
         
         public MemoryStream CreateWave(){
             const uint sampleRate = 44100;  // サンプリング周波数
-
             // 波形データの生成
             uint wavelen = (uint)(sampleRate * 1.0);
-            byte[] wave = new byte[wavelen];
-
-            double t = 0;
-            for (uint i = 0; i < wavelen; i++)
-            {
-                t = (t + 880.0 / sampleRate) % 1;
-                wave[i] = (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * 10);
-            }
+            byte[] wave = CreateKhoomiiSound(wavelen, sampleRate);
 
             //using (FileStream st = new FileStream(@"c:\tmp\hoge.wav", FileMode.Create))
             MemoryStream st = new MemoryStream();
@@ -55,6 +47,17 @@ namespace AutoKhoomii
             return st;
         }
 
+        public byte[] CreateKhoomiiSound(uint wavelen, uint sampleRate){
+            byte[] wave = new byte[wavelen];
+
+            double t = 0;
+            for (uint i = 0; i < wavelen; i++)
+            {
+                t = (t + 880.0 / sampleRate) % 1;
+                wave[i] = (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * 10);
+            }
+            return wave;
+        }
         private void WriteVal(Stream st, int len, uint value)
         {
             byte[] ba = BitConverter.GetBytes(value);
