@@ -1,0 +1,12 @@
+*.suo
+*.lock
+*.ide
+*.ide-shm
+bin/Debug/data/test.wav
+bin/Debug/AutoKhoomii.exe.config
+*.cache
+*.baml
+obj/Debug/TemporaryGeneratedFile_*
+*.exe
+obj/*
+.vs/*

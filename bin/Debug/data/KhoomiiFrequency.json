@@ -1,0 +1,6 @@
+[
+    {"Name": "Pattern1", "Frequencies":[430, 1180, 2670, 3410, 5420]},
+    {"Name": "Pattern2", "Frequencies":[430, 1070, 3540]},
+    {"Name": "Pattern3", "Frequencies":[250, 2000, 3980, 5650]},
+    {"Name": "Pattern4", "Frequencies":[560, 1860, 3760, 5480]}
+]
