@@ -11,3 +11,10 @@ obj/Debug/TemporaryGeneratedFile_*
 obj/*
 .vs/*
 *.pdb
+packages/*
+bin/Debug/AutoKhoomii.pdb
+UTestAutoKhoomii/obj/Debug/UTestAutoKhoomii.csproj.FileListAbsolute.txt
+UTestAutoKhoomii/obj/Debug/
+TemporaryGeneratedFile_*
+UTestAutoKhoomii/Properties/AssemblyInfo.cs
+UTestAutoKhoomii/bin/*

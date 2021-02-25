@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AutoKhoomii
 {
-    class KhoomiiPlayer
+    public class KhoomiiPlayer
     {
         public void Run(){
             MemoryStream waveStream = CreateWave();
@@ -58,6 +60,21 @@ namespace AutoKhoomii
             }
             return wave;
         }
+
+        /// <summary>
+        /// Jsonファイルからホーミー周波数を読み取ります。
+        /// </summary>
+        /// <param name="fPath"></param>
+        /// <returns></returns>
+        public List<KhoomiiData> LoadKhoomiiFrequency(String fPath){
+            List<KhoomiiData> khoomiiDatas;
+            using(FileStream fs = new FileStream(fPath, FileMode.Open)){
+                var serializer = new DataContractJsonSerializer(typeof(List<KhoomiiData>));
+                khoomiiDatas = serializer.ReadObject(fs) as List<KhoomiiData>;
+                return khoomiiDatas;
+            }
+        }
+
         private void WriteVal(Stream st, int len, uint value)
         {
             byte[] ba = BitConverter.GetBytes(value);
