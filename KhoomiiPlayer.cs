@@ -12,24 +12,44 @@ namespace AutoKhoomii
 {
     public class KhoomiiPlayer
     {
+        List<KhoomiiData> khoomiiDatas;
+        List<MemoryStream> playList;
+        public List<KhoomiiData> KhoomiiDatas{
+            get{return this.khoomiiDatas;}
+            set{this.khoomiiDatas = value;}
+        }
+        public List<MemoryStream> PlayList{
+            get{return this.playList;}
+            set{this.playList = value;}
+        }
+
+        public KhoomiiPlayer(){
+            this.KhoomiiDatas = LoadKhoomiiFrequency("./data/KhoomiiFrequency.json");
+        }
+
         public void Run(){
-            MemoryStream waveStream = CreateWave();
+            MemoryStream waveStream = CreateWave(this.KhoomiiDatas, 2);
             PlayKhoomii(ref waveStream);
             waveStream.Close();
         }
         
-        public MemoryStream CreateWave(){
+        public MemoryStream CreateWave(List<KhoomiiData> khoomiiDatas, float duration){
             const uint sampleRate = 44100;  // サンプリング周波数
             // 波形データの生成
-            uint wavelen = (uint)(sampleRate * 1.0);
-            byte[] wave = CreateKhoomiiSound(wavelen, sampleRate);
+            uint wavelen = (uint)(sampleRate * duration);
+            byte[] khoomiiMelody = new byte[wavelen*khoomiiDatas.Count];
+            for(int n = 0; n < khoomiiDatas.Count; ++n){
+                byte[] wave = CreateKhoomiiSound(wavelen, sampleRate, khoomiiDatas[n]);
+                wave.CopyTo(khoomiiMelody, n*wavelen);
+            }
+            
 
             //using (FileStream st = new FileStream(@"c:\tmp\hoge.wav", FileMode.Create))
             MemoryStream st = new MemoryStream();
         
             // WAVEファイルヘッダ
             WriteStr(st, "RIFF");
-            WriteVal(st, 4, wavelen + 36);
+            WriteVal(st, 4, (uint)khoomiiMelody.Length + 36);
             WriteStr(st, "WAVE");
             WriteStr(st, "fmt ");
             WriteVal(st, 4, 16);
@@ -40,29 +60,34 @@ namespace AutoKhoomii
             WriteVal(st, 2, 1);              // nBlockAlign
             WriteVal(st, 2, 8);              // wBitsPerSample
             WriteStr(st, "data");
-            WriteVal(st, 4, wavelen);
+            WriteVal(st, 4, (uint)khoomiiMelody.Length);
 
-            st.Write(wave, 0, wave.Length);
+            st.Write(khoomiiMelody, 0, khoomiiMelody.Length);
 
             st.Seek(0, SeekOrigin.Begin); // Seekを原点にしておく。
 
             return st;
         }
 
-        public byte[] CreateKhoomiiSound(uint wavelen, uint sampleRate){
+        public byte[] CreateKhoomiiSound(uint wavelen, uint sampleRate, KhoomiiData khoomiiData){
             byte[] wave = new byte[wavelen];
-
-            double t = 0;
-            for (uint i = 0; i < wavelen; i++)
+            int num_freq = khoomiiData.Frequencies.Count;
+            foreach (float frequency in khoomiiData.Frequencies)
             {
-                t = (t + 880.0 / sampleRate) % 1;
-                wave[i] = (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * 10);
+                double t = 0;
+                for (uint i = 0; i < wavelen; i++)
+                {
+                    t = (t + frequency / sampleRate) % 1;
+                    wave[i] += (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * 20 / 5); 
+                }
             }
             return wave;
         }
 
         /// <summary>
         /// Jsonファイルからホーミー周波数を読み取ります。
+        /// ホーミーの周波数は以下を参考にした。
+        /// [モンゴルの歌唱法「ホーミー」の音響的特徴の解析] https://www.jstage.jst.go.jp/article/jasj/56/5/56_KJ00001457362/_pdf/-char/ja 
         /// </summary>
         /// <param name="fPath"></param>
         /// <returns></returns>
@@ -90,7 +115,7 @@ namespace AutoKhoomii
         public void PlayKhoomii(ref MemoryStream wave){
             wave.Seek(0, SeekOrigin.Begin);
             var player = new SoundPlayer(wave);
-            player.PlaySync();
+            player.Play();
         }
     }
 }
