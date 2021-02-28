@@ -87,6 +87,7 @@ namespace AutoKhoomii
             int num_freq = freqInfos.Count;
             foreach (var frequencyInfo in freqInfos)
             {
+                // 周波数に自然な感じの幅を持たせたい
                 double t = 0;
                 for (uint i = 0; i < wavelen; i++)
                 {

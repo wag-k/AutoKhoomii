@@ -18,3 +18,5 @@ UTestAutoKhoomii/obj/Debug/
 TemporaryGeneratedFile_*
 UTestAutoKhoomii/Properties/AssemblyInfo.cs
 UTestAutoKhoomii/bin/*
+*.dll
+bin/Debug/MathNet.Numerics.xml
