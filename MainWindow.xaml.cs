@@ -36,17 +36,26 @@ namespace AutoKhoomii
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             this.KhoomiiPlayer = new KhoomiiPlayer();
             this.StandbyPlayState = new StandbyPlayState(this);
             this.AutoPlayState = new AutoPlayState(this);
             this.ManualPlayState = new ManualPlayState(this);
+            this.PlayState = this.StandbyPlayState;
 
             this.KhoomiiPlayer.LoadKhoomiiMelody();
         }
-
+        private void ButtonAuto_Click(object sender, RoutedEventArgs e)
+        {
+            this.PlayState.PlayAuto();
+        }
         private void ButtonManual_Click(object sender, RoutedEventArgs e)
         {
             this.PlayState.PlayManual();
         }
+
     }
 }

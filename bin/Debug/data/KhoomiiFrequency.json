@@ -1,6 +1,26 @@
 [
-    {"Name": "Pattern1", "FrequencyInfos":[{"Frequency":430, "Volume":57}, {"Frequency":1180,"Volume":60}, {"Frequency":2670,"Volume":60}, {"Frequency":3410,"Volume":60}, {"Frequency":5420,"Volume":42}]},
-    {"Name": "Pattern2", "FrequencyInfos":[{"Frequency":430,"Volume":80}, {"Frequency":1070,"Volume":90}, {"Frequency":3540,"Volume":80}]},
-    {"Name": "Pattern3", "FrequencyInfos":[{"Frequency":250,"Volume":70}, {"Frequency":2000,"Volume":85}, {"Frequency":3980,"Volume":70}, {"Frequency":5650,"Volume":72}]},
-    {"Name": "Pattern4", "FrequencyInfos":[{"Frequency":560,"Volume":80}, {"Frequency":1860,"Volume":100}, {"Frequency":3760,"Volume":80}, {"Frequency":5480,"Volume":80}]}
+    {"Name": "Pattern1", "FrequencyInfos":[
+        {"Frequency":430, "Volume":77}, 
+        {"Frequency":1180,"Volume":85}, 
+        {"Frequency":2670,"Volume":85}, 
+        {"Frequency":3410,"Volume":85}, 
+        {"Frequency":5420,"Volume":62}
+    ]},
+    {"Name": "Pattern2", "FrequencyInfos":[
+        {"Frequency":430,"Volume":80}, 
+        {"Frequency":1070,"Volume":90}, 
+        {"Frequency":3540,"Volume":80}
+    ]},
+    {"Name": "Pattern3", "FrequencyInfos":[
+        {"Frequency":250,"Volume":70}, 
+        {"Frequency":2000,"Volume":85}, 
+        {"Frequency":3980,"Volume":70}, 
+        {"Frequency":5650,"Volume":72}
+    ]},
+    {"Name": "Pattern4", "FrequencyInfos":[
+        {"Frequency":560,"Volume":80}, 
+        {"Frequency":1860,"Volume":100},
+        {"Frequency":3760,"Volume":80}, 
+        {"Frequency":5480,"Volume":80}
+    ]}
 ]

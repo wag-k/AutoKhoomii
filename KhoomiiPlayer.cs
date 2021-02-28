@@ -80,20 +80,25 @@ namespace AutoKhoomii
             return st;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)] // dBToAmplitudeをinlineで呼び出したい
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // CalcAmplitudeとdBToAmplitudeをinlineで呼び出したい
         public byte[] CreateKhoomiiSound(uint wavelen, uint sampleRate, KhoomiiData khoomiiData){
             byte[] wave = new byte[wavelen];
-            int num_freq = khoomiiData.FrequencyInfos.Count;
-            foreach (var frequencyInfo in khoomiiData.FrequencyInfos)
+            var freqInfos = khoomiiData.FrequencyInfos;
+            int num_freq = freqInfos.Count;
+            foreach (var frequencyInfo in freqInfos)
             {
                 double t = 0;
                 for (uint i = 0; i < wavelen; i++)
                 {
                     t = (t + frequencyInfo.Frequency / sampleRate) % 1;
-                    wave[i] += (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * KhoomiiData.dBToAmplitude(frequencyInfo.Volume, (float)0.0001*2) / 5);
+                    wave[i] += (byte)( CalcAmplitude(t, frequencyInfo.Volume) / freqInfos.Count);
                 }
             }
             return wave;
+        }
+
+        public double CalcAmplitude(double t, float volume){
+            return 128 + Math.Sin(2 * Math.PI * t) * KhoomiiData.dBToAmplitude(volume, (float)0.001);
         }
 
         /// <summary>
@@ -125,18 +130,27 @@ namespace AutoKhoomii
         }
 
         public void Play(){
-            this.KhoomiiMelody.Seek(0, SeekOrigin.Begin);
-            this.Player = new SoundPlayer(this.KhoomiiMelody);
+            this.ReadyPlayer();
             this.Player.Play();
         }
+        public void PlayLooping(){
+            this.ReadyPlayer();
+            this.Player.PlayLooping();
+        }
+
         private void Play(ref MemoryStream wave){
             wave.Seek(0, SeekOrigin.Begin);
             this.Player = new SoundPlayer(wave);
             this.Player.Play();
         }
 
-        public void Stop(){
+        private void ReadyPlayer(){
+            this.KhoomiiMelody.Seek(0, SeekOrigin.Begin);
+            this.Player = new SoundPlayer(this.KhoomiiMelody);
+        }
 
+        public void Stop(){
+            this.Player.Stop();
         }
     }
 }

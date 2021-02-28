@@ -16,7 +16,7 @@ namespace AutoKhoomii
     public abstract class AbstractPlayState : IPlayState{
         protected static MainWindow MainWindow{get;set;}
         public AbstractPlayState(MainWindow mainWindow){
-            AbstractPlayState.MainWindow = MainWindow;
+            AbstractPlayState.MainWindow = mainWindow;
         }
         
         public abstract void StateChanged();
