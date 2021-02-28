@@ -28,7 +28,8 @@ namespace AutoKhoomii
         public float BPM{get;set;}
         public KhoomiiPlayer(){
             //this.KhoomiiDatas = LoadKhoomiiFrequency("./data/KhoomiiFrequency.json");
-            this.KhoomiiDatas = LoadKhoomiiFrequency("./data/OtnKhoomii.json");
+            //this.KhoomiiDatas = LoadKhoomiiFrequency("./data/OtnKhoomii.json");
+            this.KhoomiiDatas = LoadKhoomiiFrequency("./data/AnnaMariaHefeleKhoomii.json"); // [polyphonic overtone singing - explained visually] https://www.youtube.com/watch?v=UHTF1-IhuC0
             this.BPM = 120;
         }
 
