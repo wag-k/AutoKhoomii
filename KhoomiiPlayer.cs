@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -22,15 +23,25 @@ namespace AutoKhoomii
             get{return this.playList;}
             set{this.playList = value;}
         }
+        public SoundPlayer Player{get;set;}
+        private MemoryStream KhoomiiMelody{get;set;}
 
         public KhoomiiPlayer(){
             this.KhoomiiDatas = LoadKhoomiiFrequency("./data/KhoomiiFrequency.json");
         }
 
+        ~KhoomiiPlayer(){
+            this.KhoomiiMelody.Close();
+        }
+
         public void Run(){
             MemoryStream waveStream = CreateWave(this.KhoomiiDatas, 2);
-            PlayKhoomii(ref waveStream);
+            Play(ref waveStream);
             waveStream.Close();
+        }
+
+        public void LoadKhoomiiMelody(){
+            this.KhoomiiMelody = this.CreateWave(this.KhoomiiDatas, 2);
         }
         
         public MemoryStream CreateWave(List<KhoomiiData> khoomiiDatas, float duration){
@@ -69,16 +80,17 @@ namespace AutoKhoomii
             return st;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // dBToAmplitudeをinlineで呼び出したい
         public byte[] CreateKhoomiiSound(uint wavelen, uint sampleRate, KhoomiiData khoomiiData){
             byte[] wave = new byte[wavelen];
-            int num_freq = khoomiiData.Frequencies.Count;
-            foreach (float frequency in khoomiiData.Frequencies)
+            int num_freq = khoomiiData.FrequencyInfos.Count;
+            foreach (var frequencyInfo in khoomiiData.FrequencyInfos)
             {
                 double t = 0;
                 for (uint i = 0; i < wavelen; i++)
                 {
-                    t = (t + frequency / sampleRate) % 1;
-                    wave[i] += (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * 20 / 5); 
+                    t = (t + frequencyInfo.Frequency / sampleRate) % 1;
+                    wave[i] += (byte)(128 + Math.Sin(2 * Math.PI * t) * (1 - i / (double)wavelen) * KhoomiiData.dBToAmplitude(frequencyInfo.Volume, (float)0.0001*2) / 5);
                 }
             }
             return wave;
@@ -112,10 +124,19 @@ namespace AutoKhoomii
             st.Write(ba, 0, ba.Length);
         }
 
-        public void PlayKhoomii(ref MemoryStream wave){
+        public void Play(){
+            this.KhoomiiMelody.Seek(0, SeekOrigin.Begin);
+            this.Player = new SoundPlayer(this.KhoomiiMelody);
+            this.Player.Play();
+        }
+        private void Play(ref MemoryStream wave){
             wave.Seek(0, SeekOrigin.Begin);
-            var player = new SoundPlayer(wave);
-            player.Play();
+            this.Player = new SoundPlayer(wave);
+            this.Player.Play();
+        }
+
+        public void Stop(){
+
         }
     }
 }

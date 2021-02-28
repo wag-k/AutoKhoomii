@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="UTestAutoKhoomii.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UTestKhoomiiData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

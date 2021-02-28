@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,15 +21,32 @@ namespace AutoKhoomii
     /// </summary>
     public partial class MainWindow : Window
     {
+        private IPlayState playState;
+        public KhoomiiPlayer KhoomiiPlayer{get;set;}
+        public IPlayState PlayState{
+            get{return this.playState;}
+            set{
+                this.playState = value;
+                this.playState.StateChanged();
+            }
+        }
+        public StandbyPlayState StandbyPlayState{get;set;}
+        public AutoPlayState AutoPlayState{get;set;}
+        public ManualPlayState ManualPlayState{get;set;}
         public MainWindow()
         {
             InitializeComponent();
+            this.KhoomiiPlayer = new KhoomiiPlayer();
+            this.StandbyPlayState = new StandbyPlayState(this);
+            this.AutoPlayState = new AutoPlayState(this);
+            this.ManualPlayState = new ManualPlayState(this);
+
+            this.KhoomiiPlayer.LoadKhoomiiMelody();
         }
 
         private void ButtonManual_Click(object sender, RoutedEventArgs e)
         {
-            KhoomiiPlayer autoKhoomii = new KhoomiiPlayer();
-            autoKhoomii.Run();
+            this.PlayState.PlayManual();
         }
     }
 }

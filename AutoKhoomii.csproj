@@ -56,7 +56,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AutoPlayState.cs" />
+    <Compile Include="IPlayState.cs" />
     <Compile Include="KhoomiiData.cs" />
+    <Compile Include="ManualPlayState.cs" />
+    <Compile Include="StandbyPlayState.cs" />
     <Compile Include="WaveFIleHeader.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
