@@ -25,9 +25,11 @@ namespace AutoKhoomii
         }
         public SoundPlayer Player{get;set;}
         private MemoryStream KhoomiiMelody{get;set;}
-
+        public float BPM{get;set;}
         public KhoomiiPlayer(){
-            this.KhoomiiDatas = LoadKhoomiiFrequency("./data/KhoomiiFrequency.json");
+            //this.KhoomiiDatas = LoadKhoomiiFrequency("./data/KhoomiiFrequency.json");
+            this.KhoomiiDatas = LoadKhoomiiFrequency("./data/OtnKhoomii.json");
+            this.BPM = 120;
         }
 
         ~KhoomiiPlayer(){
@@ -41,7 +43,8 @@ namespace AutoKhoomii
         }
 
         public void LoadKhoomiiMelody(){
-            this.KhoomiiMelody = this.CreateWave(this.KhoomiiDatas, 2);
+
+            this.KhoomiiMelody = this.CreateWave(this.KhoomiiDatas, (float)120/this.BPM);
         }
         
         public MemoryStream CreateWave(List<KhoomiiData> khoomiiDatas, float duration){
