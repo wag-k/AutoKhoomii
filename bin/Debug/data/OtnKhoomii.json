@@ -2,49 +2,49 @@
     {"Name": "OtnKhoomii1", "FrequencyInfos":[
         {"Frequency":166.6, "Volume":82}, 
         {"Frequency":332.6,"Volume":85}, 
-        {"Frequency":498.9,"Volume":40}, 
+        {"Frequency":498.9,"Volume":70}, 
         {"Frequency":665.2,"Volume":30}, 
         {"Frequency":831.5,"Volume":20}, 
         {"Frequency":997.8,"Volume":10}, 
-        {"Frequency":1164.1,"Volume":35}, 
+        {"Frequency":1164.1,"Volume":75}, 
         {"Frequency":1330.4,"Volume":80}, 
-        {"Frequency":1496.7,"Volume":30}, 
-        {"Frequency":1663,"Volume":30}
+        {"Frequency":1496.7,"Volume":70}, 
+        {"Frequency":1663,"Volume":70}
     ]},
     {"Name": "OtnKhoomii1", "FrequencyInfos":[
         {"Frequency":166.6, "Volume":85}, 
         {"Frequency":332.6,"Volume":80}, 
-        {"Frequency":498.9,"Volume":40}, 
+        {"Frequency":498.9,"Volume":70}, 
         {"Frequency":665.2,"Volume":30}, 
         {"Frequency":831.5,"Volume":20}, 
         {"Frequency":997.8,"Volume":10}, 
-        {"Frequency":1164.1,"Volume":35}, 
-        {"Frequency":1330.4,"Volume":35}, 
+        {"Frequency":1164.1,"Volume":70}, 
+        {"Frequency":1330.4,"Volume":75}, 
         {"Frequency":1496.7,"Volume":82}, 
-        {"Frequency":1663,"Volume":30}
+        {"Frequency":1663,"Volume":70}
     ]},
     {"Name": "OtnKhoomii1", "FrequencyInfos":[
         {"Frequency":166.6, "Volume":82}, 
         {"Frequency":332.6,"Volume":85}, 
-        {"Frequency":498.9,"Volume":40}, 
+        {"Frequency":498.9,"Volume":70}, 
         {"Frequency":665.2,"Volume":30}, 
         {"Frequency":831.5,"Volume":20}, 
         {"Frequency":997.8,"Volume":10}, 
-        {"Frequency":1164.1,"Volume":30}, 
-        {"Frequency":1330.4,"Volume":35}, 
-        {"Frequency":1496.7,"Volume":35}, 
+        {"Frequency":1164.1,"Volume":70}, 
+        {"Frequency":1330.4,"Volume":75}, 
+        {"Frequency":1496.7,"Volume":75}, 
         {"Frequency":1663,"Volume":85}
     ]},
     {"Name": "OtnKhoomii1", "FrequencyInfos":[
         {"Frequency":166.6, "Volume":85}, 
         {"Frequency":332.6,"Volume":80}, 
-        {"Frequency":498.9,"Volume":40}, 
+        {"Frequency":498.9,"Volume":70}, 
         {"Frequency":665.2,"Volume":30}, 
         {"Frequency":831.5,"Volume":20}, 
         {"Frequency":997.8,"Volume":10}, 
         {"Frequency":1164.1,"Volume":80}, 
-        {"Frequency":1330.4,"Volume":35}, 
-        {"Frequency":1496.7,"Volume":35}, 
-        {"Frequency":1663,"Volume":30}
+        {"Frequency":1330.4,"Volume":75}, 
+        {"Frequency":1496.7,"Volume":75}, 
+        {"Frequency":1663,"Volume":70}
     ]}
 ]
