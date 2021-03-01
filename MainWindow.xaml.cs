@@ -23,6 +23,7 @@ namespace AutoKhoomii
     {
         private IPlayState playState;
         public KhoomiiPlayer KhoomiiPlayer{get;set;}
+        public BabyCryDetector BabyCryDetector{get;set;}
         public IPlayState PlayState{
             get{return this.playState;}
             set{
@@ -40,6 +41,7 @@ namespace AutoKhoomii
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.BabyCryDetector = new BabyCryDetector();
             this.KhoomiiPlayer = new KhoomiiPlayer();
             this.StandbyPlayState = new StandbyPlayState(this);
             this.AutoPlayState = new AutoPlayState(this);

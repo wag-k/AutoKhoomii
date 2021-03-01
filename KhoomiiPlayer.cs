@@ -24,7 +24,7 @@ namespace AutoKhoomii
             set{this.playList = value;}
         }
         public SoundPlayer Player{get;set;}
-        private MemoryStream KhoomiiMelody{get;set;}
+        public MemoryStream KhoomiiMelody{get;set;}
         public float BPM{get;set;}
         public KhoomiiPlayer(){
             //this.KhoomiiDatas = LoadKhoomiiFrequency("./data/KhoomiiFrequency.json");

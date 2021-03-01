@@ -61,6 +61,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AutoPlayState.cs" />
+    <Compile Include="BabyCryDetector.cs" />
     <Compile Include="IPlayState.cs" />
     <Compile Include="KhoomiiData.cs" />
     <Compile Include="ManualPlayState.cs" />

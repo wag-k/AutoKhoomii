@@ -10,10 +10,10 @@ namespace AutoKhoomii
     {
         public AutoPlayState(MainWindow mainWindow) : base(mainWindow){}
         public override void StateChanged(){
-
+            MainWindow.BabyCryDetector.DetectCry(MainWindow.KhoomiiPlayer.KhoomiiMelody);
         }
         public override void PlayAuto(){
-
+            MainWindow.PlayState = MainWindow.StandbyPlayState;
         }
         public override void PlayManual(){
 

@@ -17,7 +17,7 @@ namespace AutoKhoomii
             MainWindow.ButtonManual.Content = "Manual";
         }
         public override void PlayAuto(){
-            MessageBox.Show("Under construction", "Notification", MessageBoxButton.OK, MessageBoxImage.Information);
+            MainWindow.PlayState = MainWindow.AutoPlayState;
             
         }
         public override void PlayManual(){
