@@ -34,6 +34,7 @@ namespace AutoKhoomii
         public StandbyPlayState StandbyPlayState{get;set;}
         public AutoPlayState AutoPlayState{get;set;}
         public ManualPlayState ManualPlayState{get;set;}
+        public RecorCryState RecordCryState{get;set;}
         public MainWindow()
         {
             InitializeComponent();
@@ -46,6 +47,7 @@ namespace AutoKhoomii
             this.StandbyPlayState = new StandbyPlayState(this);
             this.AutoPlayState = new AutoPlayState(this);
             this.ManualPlayState = new ManualPlayState(this);
+            this.RecordCryState = new RecorCryState(this);
             this.PlayState = this.StandbyPlayState;
 
             this.KhoomiiPlayer.LoadKhoomiiMelody();
@@ -57,6 +59,10 @@ namespace AutoKhoomii
         private void ButtonManual_Click(object sender, RoutedEventArgs e)
         {
             this.PlayState.PlayManual();
+        }
+        private void ButtonRecord_Click(object sender, RoutedEventArgs e)
+        {
+            this.PlayState.RecordCry();
         }
 
     }

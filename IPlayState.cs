@@ -11,6 +11,7 @@ namespace AutoKhoomii
         void StateChanged();
         void PlayAuto();
         void PlayManual();
+        void RecordCry();
     }
 
     public abstract class AbstractPlayState : IPlayState{
@@ -22,5 +23,6 @@ namespace AutoKhoomii
         public abstract void StateChanged();
         public abstract void PlayAuto();
         public abstract void PlayManual();
+        public abstract void RecordCry();
     }
 }

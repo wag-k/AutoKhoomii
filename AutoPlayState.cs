@@ -18,5 +18,8 @@ namespace AutoKhoomii
         public override void PlayManual(){
 
         }
+        public override void RecordCry(){
+
+        }
     }
 }
