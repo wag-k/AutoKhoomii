@@ -9,7 +9,8 @@
 - System.Runtime.Serialization
 
 ## Nuget
-- Math.Net Numerics
+- Math.Net Numerics v4.15.0
+- NAudio v1.10.0
 
 # Reference
 1. [モンゴルの歌唱法「ホーミー」の音響的特徴の解析] https://www.jstage.jst.go.jp/article/jasj/56/5/56_KJ00001457362/_pdf/-char/ja 

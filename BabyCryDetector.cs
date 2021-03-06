@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using System.Numerics;
 using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
+using NAudio.Wave;
+using NAudio.Codecs;
+using NAudio.CoreAudioApi;
 
 namespace AutoKhoomii
 {
