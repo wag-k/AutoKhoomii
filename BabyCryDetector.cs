@@ -24,10 +24,10 @@ namespace AutoKhoomii
 
         public WaveInEvent WaveInEvent{get;set;}
         public MemoryStream RecordedWave{get; private set;}
+        public List<Complex[]> CryFrequencies{get;set;}
         public BabyCryDetector(){
             this.WindowSize = 2048;
-            this.FftData = new Complex[this.WindowSize];
-            this.RecordedWave = new MemoryStream();
+            this.CryFrequencies = new List<Complex[]>();
         }
 
         ~BabyCryDetector(){
@@ -39,13 +39,7 @@ namespace AutoKhoomii
         }
         public void DetectCry(MemoryStream stream){
             byte[] sound = stream.GetBuffer();
-            for (int n = 0; n < this.WindowSize; ++n){
-                FftData[n] = new Complex((double)sound[n], 0);
-            }
-            Fourier.Forward(this.FftData, FourierOptions.Matlab);
-            for (int n = 0; n < WindowSize; ++n){
-                Console.WriteLine("n: "+n+", freq: "+(float)n/((float)this.WindowSize/44100)+", Vol: "+FftData[n].Magnitude);
-            }
+            this.FftData = this.FFT(sound);
         }
 
         /// <summary>
@@ -84,6 +78,29 @@ namespace AutoKhoomii
         {
             this.WaveInEvent?.StopRecording();
             this.RecordedWave.Seek(0, SeekOrigin.Begin);
+            Byte[] waveByte = this.RecordedWave.GetBuffer();
+            int numFFTSample = waveByte.Length / this.WindowSize;
+            for (int n=0; n < numFFTSample; ++n){
+                this.CryFrequencies.Add(this.FFT(this.RecordedWave.GetBuffer(), n*this.WindowSize));
+            }
+        }
+        public Complex[] FFT(Byte[] soundByte){
+            return (this.FFT(soundByte, 0));
+        }
+        public Complex[] FFT(Byte[] soundByte, int idx_start){
+            Complex[] fft = new Complex[this.WindowSize];
+
+            for (int n = 0; n < this.WindowSize; ++n){
+                int idx = n+idx_start;
+                fft[n] = new Complex((double)soundByte[idx], 0);
+            }
+            Fourier.Forward(fft, FourierOptions.Matlab);
+            /*
+            for (int n = 0; n < WindowSize; ++n){
+                Console.WriteLine("n: "+n+", freq: "+(float)n/((float)this.WindowSize/44100)+", Vol: "+fft[n].Magnitude);
+            }
+            */
+            return fft;
         }
 
     }
