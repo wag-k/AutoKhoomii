@@ -50,7 +50,7 @@ namespace AutoKhoomii
             this.RecordCryState = new RecorCryState(this);
             this.PlayState = this.StandbyPlayState;
 
-            this.KhoomiiPlayer.LoadKhoomiiMelody();
+            this.KhoomiiPlayer.LoadKhoomii  Melody();
         }
         private void ButtonAuto_Click(object sender, RoutedEventArgs e)
         {

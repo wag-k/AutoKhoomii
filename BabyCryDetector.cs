@@ -22,24 +22,87 @@ namespace AutoKhoomii
         }
         public int WindowSize{get;set;}
 
-        public WaveInEvent WaveInEvent{get;set;}
+        public WaveInEvent RecordCryWaveIn{get;set;}
+        public WaveInEvent RecordWaveIn{get;set;}
+        /// <summary>
+        /// 泣き声のサンプルデータ
+        /// </summary>
+        /// <value></value>
+        public MemoryStream RecordedCryWave{get; private set;}
+        /// <summary>
+        /// 自動検出で用いるストリーミングデータ
+        /// </summary>
+        /// <value></value>
         public MemoryStream RecordedWave{get; private set;}
         public List<Complex[]> CryFrequencies{get;set;}
         public BabyCryDetector(){
             this.WindowSize = 2048;
             this.CryFrequencies = new List<Complex[]>();
+            this.RecordCryWaveIn = this.CreateWaveInEvent();
+            this.RecordWaveIn = this.CreateWaveInEvent();
         }
 
         ~BabyCryDetector(){
-            this.WaveInEvent?.Dispose();
-            this.WaveInEvent = null;
+            this.RecordCryWaveIn?.Dispose();
+            this.RecordCryWaveIn = null;
 
-            this.RecordedWave?.Close();
-            this.RecordedWave = null;
+            this.RecordedCryWave?.Close();
+            this.RecordedCryWave = null;
         }
-        public void DetectCry(MemoryStream stream){
-            byte[] sound = stream.GetBuffer();
-            this.FftData = this.FFT(sound);
+
+        private WaveInEvent CreateWaveInEvent(){
+            // 録音デバイスを選びたい場合は、WaveInEvent.DeviceCount、WaveInEvent.GetCapabilities を使って探してください。
+            var deviceNumber = 0;
+
+            WaveInEvent waveInEvent = new WaveInEvent();
+            waveInEvent.DeviceNumber = deviceNumber;
+            waveInEvent.WaveFormat = new WaveFormat(44100, WaveInEvent.GetCapabilities(deviceNumber).Channels);
+            return waveInEvent;
+        }
+
+        /// <summary>
+        /// 自動検出用の録音を開始します
+        /// </summary>
+        public void StartDetectingCry(){
+            this.RecordedWave = new MemoryStream();
+            WaveFileWriter waveWriter = new WaveFileWriter(this.RecordedWave, this.RecordWaveIn.WaveFormat);
+            EventHandler<WaveInEventArgs> writeWW = (_, ee) =>
+            {
+                waveWriter.Write(ee.Buffer, 0, ee.BytesRecorded);
+                waveWriter.Flush();
+            };
+            this.RecordWaveIn.DataAvailable += writeWW;
+            this.RecordWaveIn.RecordingStopped += (_, __) =>
+            {
+                waveWriter.Flush();
+            };
+
+            this.RecordWaveIn.StartRecording();
+        }
+
+        /// <summary>
+        /// 自動検出用の録音を終了します
+        /// </summary>
+        /// <returns></returns>
+        public void StopDetectingCry(){
+            this.RecordCryWaveIn?.StopRecording();
+            this.RecordedCryWave.Seek(0, SeekOrigin.Begin);
+        }
+
+        /// <summary>
+        /// 取得した音声とあらかじめ取得した泣き声データを比較して泣き声判定します。
+        /// </summary>
+        /// <returns>trueなら泣き声、falseは違う</returns>
+        public bool DetectCry(){
+            this.RecordWaveIn?.StopRecording(); // いったん止めてFlushする
+            Byte[] sound = this.RecordedWave.GetBuffer();
+            // Windowサイズより小さかったら実行しません
+            if (sound.Length < this.WindowSize){
+                return false;
+            }
+            this.FftData = this.FFT(sound, sound.Length - 1 - this.WindowSize); // 直近の音を使う
+            this.RecordCryWaveIn?.StartRecording(); // 再開
+            return true;
         }
 
         /// <summary>
@@ -47,41 +110,35 @@ namespace AutoKhoomii
         /// </summary>
         public void StartSamplingCry()
         {
-            // 録音デバイスを選びたい場合は、WaveInEvent.DeviceCount、WaveInEvent.GetCapabilities を使って探してください。
-            var deviceNumber = 0;
-
             // 録画処理を開始
             // WaveIn だと、「System.InvalidOperationException: 'Use WaveInEvent to record on a background thread'」のエラーが発生する
             // WaveIn = new WaveIn();
-            this.WaveInEvent = new WaveInEvent();
-            this.WaveInEvent.DeviceNumber = deviceNumber;
-            this.WaveInEvent.WaveFormat = new WaveFormat(44100, WaveInEvent.GetCapabilities(deviceNumber).Channels);
 
-            this.RecordedWave = new MemoryStream();
-            WaveFileWriter WaveWriter = new WaveFileWriter(this.RecordedWave, this.WaveInEvent.WaveFormat);
-
-            this.WaveInEvent.DataAvailable += (_, ee) =>
+            this.RecordedCryWave = new MemoryStream();
+            WaveFileWriter waveWriter = new WaveFileWriter(this.RecordedCryWave, this.RecordCryWaveIn.WaveFormat);
+            EventHandler<WaveInEventArgs> writeWW = (_, ee) =>
             {
-                WaveWriter.Write(ee.Buffer, 0, ee.BytesRecorded);
-                WaveWriter.Flush();
+                waveWriter.Write(ee.Buffer, 0, ee.BytesRecorded);
+                waveWriter.Flush();
             };
-            this.WaveInEvent.RecordingStopped += (_, __) =>
+            this.RecordCryWaveIn.DataAvailable += writeWW;
+            this.RecordCryWaveIn.RecordingStopped += (_, __) =>
             {
-                WaveWriter.Flush();
+                waveWriter.Flush();
             };
 
-            this.WaveInEvent.StartRecording();
+            this.RecordCryWaveIn.StartRecording();
         }
 
 
         public void StopSamplingCry()
         {
-            this.WaveInEvent?.StopRecording();
-            this.RecordedWave.Seek(0, SeekOrigin.Begin);
-            Byte[] waveByte = this.RecordedWave.GetBuffer();
+            this.RecordCryWaveIn?.StopRecording();
+            this.RecordedCryWave.Seek(0, SeekOrigin.Begin);
+            Byte[] waveByte = this.RecordedCryWave.GetBuffer();
             int numFFTSample = waveByte.Length / this.WindowSize;
             for (int n=0; n < numFFTSample; ++n){
-                this.CryFrequencies.Add(this.FFT(this.RecordedWave.GetBuffer(), n*this.WindowSize));
+                this.CryFrequencies.Add(this.FFT(this.RecordedCryWave.GetBuffer(), n*this.WindowSize));
             }
         }
         public Complex[] FFT(Byte[] soundByte){
