@@ -23,12 +23,20 @@ namespace AutoKhoomii
         public int WindowSize{get;set;}
 
         public WaveInEvent WaveInEvent{get;set;}
-        private WaveFileWriter WaveWriter{get;set;}
+        public MemoryStream RecordedWave{get; private set;}
         public BabyCryDetector(){
             this.WindowSize = 2048;
             this.FftData = new Complex[this.WindowSize];
+            this.RecordedWave = new MemoryStream();
         }
 
+        ~BabyCryDetector(){
+            this.WaveInEvent?.Dispose();
+            this.WaveInEvent = null;
+
+            this.RecordedWave?.Close();
+            this.RecordedWave = null;
+        }
         public void DetectCry(MemoryStream stream){
             byte[] sound = stream.GetBuffer();
             for (int n = 0; n < this.WindowSize; ++n){
@@ -40,8 +48,10 @@ namespace AutoKhoomii
             }
         }
 
-
-        private void btnStart_Click(object sender, EventArgs e)
+        /// <summary>
+        /// 泣き声のサンプリングを行います。
+        /// </summary>
+        public void StartSamplingCry()
         {
             // 録音デバイスを選びたい場合は、WaveInEvent.DeviceCount、WaveInEvent.GetCapabilities を使って探してください。
             var deviceNumber = 0;
@@ -53,7 +63,8 @@ namespace AutoKhoomii
             this.WaveInEvent.DeviceNumber = deviceNumber;
             this.WaveInEvent.WaveFormat = new WaveFormat(44100, WaveInEvent.GetCapabilities(deviceNumber).Channels);
 
-            WaveWriter = new WaveFileWriter("C:\\temp\\test1.wav", this.WaveInEvent.WaveFormat);
+            this.RecordedWave = new MemoryStream();
+            WaveFileWriter WaveWriter = new WaveFileWriter(this.RecordedWave, this.WaveInEvent.WaveFormat);
 
             this.WaveInEvent.DataAvailable += (_, ee) =>
             {
@@ -68,14 +79,11 @@ namespace AutoKhoomii
             this.WaveInEvent.StartRecording();
         }
 
-        private void btnStop_Click(object sender, EventArgs e)
+
+        public void StopSamplingCry()
         {
             this.WaveInEvent?.StopRecording();
-            this.WaveInEvent?.Dispose();
-            this.WaveInEvent = null;
-
-            WaveWriter?.Close();
-            WaveWriter = null;
+            this.RecordedWave.Seek(0, SeekOrigin.Begin);
         }
 
     }

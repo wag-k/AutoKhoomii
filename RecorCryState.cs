@@ -13,14 +13,17 @@ namespace AutoKhoomii
             MainWindow.ButtonAuto.IsEnabled = false;
             MainWindow.ButtonManual.IsEnabled = false;
             MainWindow.ButtonRecord.IsEnabled = true;
-            MainWindow.ButtonManual.Content = "Stop";
-            MainWindow.KhoomiiPlayer.PlayLooping();
+            MainWindow.ButtonRecord.Content = "Stop";
+            MainWindow.BabyCryDetector.StartSamplingCry();
         }
         public override void PlayAuto(){
         }
         public override void PlayManual(){
         }
         public override void RecordCry(){
+            MainWindow.BabyCryDetector.StopSamplingCry();
+            MainWindow.KhoomiiPlayer.Player = new System.Media.SoundPlayer(MainWindow.BabyCryDetector.RecordedWave);
+            MainWindow.KhoomiiPlayer.Player.Play();
             MainWindow.PlayState = MainWindow.StandbyPlayState;
         }
     }

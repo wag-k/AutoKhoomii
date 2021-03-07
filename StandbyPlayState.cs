@@ -15,6 +15,8 @@ namespace AutoKhoomii
             MainWindow.ButtonAuto.Content = "Auto";
             MainWindow.ButtonManual.IsEnabled = true;
             MainWindow.ButtonManual.Content = "Manual";
+            MainWindow.ButtonRecord.IsEnabled = true;
+            MainWindow.ButtonRecord.Content = "Record";
         }
         public override void PlayAuto(){
             MainWindow.PlayState = MainWindow.AutoPlayState;
