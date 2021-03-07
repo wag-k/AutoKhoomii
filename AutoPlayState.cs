@@ -39,10 +39,12 @@ namespace AutoKhoomii
             return timer;
         }
         public void DetectCry(object sender, System.Timers.ElapsedEventArgs e){
+            this.TimerDetecting.Enabled = false; // やってる間は止めます
             if(MainWindow.BabyCryDetector.DetectCry()){
                 this.TimerDetecting.Enabled = false;
                 MainWindow.KhoomiiPlayer.Play();
             }
+            this.TimerDetecting.Enabled = true;
         }
     }
 }

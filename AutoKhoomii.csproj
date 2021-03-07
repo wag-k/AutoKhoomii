@@ -72,6 +72,7 @@
     <Compile Include="IPlayState.cs" />
     <Compile Include="KhoomiiData.cs" />
     <Compile Include="ManualPlayState.cs" />
+    <Compile Include="MinMax.cs" />
     <Compile Include="RecorCryState.cs" />
     <Compile Include="StandbyPlayState.cs" />
     <Compile Include="WaveFIleHeader.cs" />
