@@ -42,7 +42,7 @@ namespace AutoKhoomii
         public List<double[]> CryVolumeFrequencies{get;set;}
         public AutoResetEvent AutoResetEvent{get;set;}
         public BabyCryDetector(){
-            this.WindowSize = 2048;
+            this.WindowSize = 4096*4;
             this.CryFrequencies = new List<Complex[]>();
             this.CryVolumeFrequencies = new List<double[]>();
             this.RecordCryWaveIn = this.CreateWaveInEvent();
@@ -147,7 +147,7 @@ namespace AutoKhoomii
             this.RecordedWave.Dispose(); // 放っておくとどんどんメモリを食うのでクリア
             this.RecordedWave = new MemoryStream();
             this.RecordWaveIn?.StartRecording(); // 再開
-            if(0.97 < corMax){
+            if(0.85< corMax){
                 return true;
             } else{
                 return false;
@@ -213,7 +213,7 @@ namespace AutoKhoomii
             for (int n = 0; n < this.WindowSize; ++n){
                 int idx = n+idx_start;
                 double volume = (double)(soundByte[idx]-byte_min);
-                fft[n] = new Complex(volume/byte_amp, 0)/Math.Sqrt(this.WindowSize);
+                fft[n] = new Complex(volume/byte_amp/Math.Sqrt(this.WindowSize), 0);
             }
             Fourier.Forward(fft, FourierOptions.Matlab);
             /*
