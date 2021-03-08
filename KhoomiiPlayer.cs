@@ -89,21 +89,47 @@ namespace AutoKhoomii
             byte[] wave = new byte[wavelen];
             var freqInfos = khoomiiData.FrequencyInfos;
             int num_freq = freqInfos.Count;
-            foreach (var frequencyInfo in freqInfos)
-            {
-                // 周波数に自然な感じの幅を持たせたい
-                double t = 0;
-                for (uint i = 0; i < wavelen; i++)
-                {
-                    t = (t + frequencyInfo.Frequency / sampleRate) % 1;
-                    wave[i] += (byte)( CalcAmplitude(t, frequencyInfo.Volume) / freqInfos.Count);
-                }
-            }
+            //CreateSimpleWave(ref wave, freqInfos, sampleRate);
+            CreateWaveWithBeat(ref wave, freqInfos, sampleRate);
             return wave;
         }
 
         public double CalcAmplitude(double t, float volume){
             return 128 + Math.Sin(2 * Math.PI * t) * KhoomiiData.dBToAmplitude(volume, (float)0.001);
+        }
+        public void CreateSimpleWave(ref byte[] wave, List<FrequencyInfo> freqInfos, uint sampleRate){
+            foreach (var frequencyInfo in freqInfos)
+            {
+                // 周波数に自然な感じの幅を持たせたい
+                double t = 0;
+                for (uint i = 0; i < wave.Length; i++)
+                {
+                    t = (t + frequencyInfo.Frequency / sampleRate) % 1;
+                    wave[i] += (byte)( CalcAmplitude(t, frequencyInfo.Volume) / freqInfos.Count);
+                }
+            }
+        }
+        public void CreateWaveWithBeat(ref byte[] wave, List<FrequencyInfo> freqInfos, uint sampleRate){
+            foreach (var frequencyInfo in freqInfos)
+            {
+                // BPMの間隔でうならせてみる
+                double t = 0;
+                for (uint i = 0; i < wave.Length; i++)
+                {
+                    t = (t + frequencyInfo.Frequency / sampleRate) % 1;
+                    wave[i] += (byte)( CalcAmplitude(t, frequencyInfo.Volume) / freqInfos.Count/3);
+                }
+                for (uint i = 0; i < wave.Length; i++)
+                {
+                    t = (t + (frequencyInfo.Frequency-this.BPM/60) / sampleRate) % 1;
+                    wave[i] += (byte)( CalcAmplitude(t, frequencyInfo.Volume) / freqInfos.Count/3);
+                }
+                for (uint i = 0; i < wave.Length; i++)
+                {
+                    t = (t + (frequencyInfo.Frequency+this.BPM/60/2) / sampleRate) % 1;
+                    wave[i] += (byte)( CalcAmplitude(t, frequencyInfo.Volume) / freqInfos.Count/3);
+                }
+            }
         }
 
         /// <summary>
