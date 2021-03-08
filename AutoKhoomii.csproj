@@ -73,7 +73,8 @@
     <Compile Include="KhoomiiData.cs" />
     <Compile Include="ManualPlayState.cs" />
     <Compile Include="MinMax.cs" />
-    <Compile Include="RecorCryState.cs" />
+    <Compile Include="RecordAmbientState.cs" />
+    <Compile Include="RecordCryState.cs" />
     <Compile Include="StandbyPlayState.cs" />
     <Compile Include="WaveFIleHeader.cs" />
     <Page Include="MainWindow.xaml">

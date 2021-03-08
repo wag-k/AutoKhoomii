@@ -12,6 +12,8 @@ namespace AutoKhoomii
         public ManualPlayState(MainWindow mainWindow) : base(mainWindow){}
         public override void StateChanged(){
             MainWindow.ButtonAuto.IsEnabled = false;
+            MainWindow.ButtonRecordAmbient.IsEnabled = false;
+            MainWindow.ButtonManual.IsEnabled = true;
             MainWindow.ButtonManual.Content = "Stop";
             MainWindow.KhoomiiPlayer.PlayLooping();
         }
@@ -20,6 +22,8 @@ namespace AutoKhoomii
         public override void PlayManual(){
             MainWindow.KhoomiiPlayer.Stop();
             MainWindow.PlayState = MainWindow.StandbyPlayState;
+        }
+        public override void RecordAmbient(){
         }
         public override void RecordCry(){
         }

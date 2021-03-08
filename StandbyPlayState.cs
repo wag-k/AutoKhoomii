@@ -25,6 +25,9 @@ namespace AutoKhoomii
         public override void PlayManual(){
             MainWindow.PlayState = MainWindow.ManualPlayState;
         }
+        public override void RecordAmbient(){
+            MainWindow.PlayState = MainWindow.RecordCryState;
+        }
         public override void RecordCry(){
             MainWindow.PlayState = MainWindow.RecordCryState;
         }

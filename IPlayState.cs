@@ -11,6 +11,7 @@ namespace AutoKhoomii
         void StateChanged();
         void PlayAuto();
         void PlayManual();
+        void RecordAmbient();
         void RecordCry();
     }
 
@@ -23,6 +24,7 @@ namespace AutoKhoomii
         public abstract void StateChanged();
         public abstract void PlayAuto();
         public abstract void PlayManual();
+        public abstract void RecordAmbient();
         public abstract void RecordCry();
     }
 }

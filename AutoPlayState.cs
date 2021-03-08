@@ -16,6 +16,7 @@ namespace AutoKhoomii
         public override void StateChanged(){
             MainWindow.ButtonAuto.IsEnabled = true;
             MainWindow.ButtonManual.IsEnabled = false;
+            MainWindow.ButtonRecordAmbient.IsEnabled = false;
             MainWindow.ButtonRecord.IsEnabled = false;
             MainWindow.ButtonAuto.Content = "Stop";
             MainWindow.BabyCryDetector.StartDetectingCry();
@@ -27,6 +28,8 @@ namespace AutoKhoomii
         }
         public override void PlayManual(){
 
+        }
+        public override void RecordAmbient(){
         }
         public override void RecordCry(){
 
