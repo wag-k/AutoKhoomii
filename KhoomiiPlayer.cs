@@ -95,7 +95,7 @@ namespace AutoKhoomii
         }
 
         public double CalcAmplitude(double t, float volume){
-            return 128 + Math.Sin(2 * Math.PI * t) * KhoomiiData.dBToAmplitude(volume, (float)0.001);
+            return 128 + Math.Sin(2 * Math.PI * t) * KhoomiiData.dBToAmplitude(volume, (float)0.001*2);
         }
         public void CreateSimpleWave(ref byte[] wave, List<FrequencyInfo> freqInfos, uint sampleRate){
             foreach (var frequencyInfo in freqInfos)

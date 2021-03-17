@@ -24,6 +24,11 @@ namespace AutoKhoomii
             get{return this.fftData;}
             set{this.fftData = value;}
         }
+        /// <summary>
+        /// 時間ごとのスペクトル分布
+        /// </summary>
+        /// <value></value>
+        double[][] TimeFftDatas{get;set;}
         public int WindowSize{get;set;}
 
         public WaveInEvent RecordCryWaveIn{get;set;}
@@ -42,7 +47,7 @@ namespace AutoKhoomii
         public List<double[]> CryVolumeFrequencies{get;set;}
         public AutoResetEvent AutoResetEvent{get;set;}
         public BabyCryDetector(){
-            this.WindowSize = 4096*4;
+            this.WindowSize = 4096/4;
             this.CryFrequencies = new List<Complex[]>();
             this.CryVolumeFrequencies = new List<double[]>();
             this.RecordCryWaveIn = this.CreateWaveInEvent();
@@ -131,6 +136,11 @@ namespace AutoKhoomii
                 }
                 return false;
             }
+            bool isDetected = DetectCryBySimpleXCorr(ref sound);
+            return isDetected;
+        }
+
+        private bool DetectCryBySimpleXCorr(ref Byte[] sound){
             this.FftData = this.FFT(sound); // 直近の音を使う
             double[] volumes = new double[this.WindowSize];
             for (int n_volume=0; n_volume < volumes.Length; ++n_volume){
