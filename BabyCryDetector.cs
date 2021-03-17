@@ -44,12 +44,11 @@ namespace AutoKhoomii
         /// <value></value>
         public MemoryStream RecordedWave{get; private set;}
         public List<Complex[]> CryFrequencies{get;set;}
-        public List<double[]> CryVolumeFrequencies{get;set;}
+        public double[][] CryVolumeFrequencies{get;set;}
         public AutoResetEvent AutoResetEvent{get;set;}
         public BabyCryDetector(){
             this.WindowSize = 4096/4;
             this.CryFrequencies = new List<Complex[]>();
-            this.CryVolumeFrequencies = new List<double[]>();
             this.RecordCryWaveIn = this.CreateWaveInEvent();
             this.RecordWaveIn = this.CreateWaveInEvent();
             this.AutoResetEvent = new AutoResetEvent(false);
@@ -146,8 +145,32 @@ namespace AutoKhoomii
             for (int n_volume=0; n_volume < volumes.Length; ++n_volume){
                 volumes[n_volume] = this.FftData[n_volume].Magnitude;
             }
-            double[] cors = new double[this.CryVolumeFrequencies.Count];
-            for(int n = 0; n < this.CryVolumeFrequencies.Count; ++n){
+            double[] cors = new double[this.CryVolumeFrequencies.Length];
+            for(int n = 0; n < this.CryVolumeFrequencies.Length; ++n){
+                double[] cryVolumeFrequency = this.CryVolumeFrequencies[n];
+                cors[n] = Correlation.Pearson(volumes, cryVolumeFrequency);
+                //Console.WriteLine("corr: "+cor);
+            }
+            double corMax = cors.Max();
+            Console.WriteLine("Max Corr: "+corMax);
+            this.RecordedWave.Dispose(); // 放っておくとどんどんメモリを食うのでクリア
+            this.RecordedWave = new MemoryStream();
+            this.RecordWaveIn?.StartRecording(); // 再開
+            if(0.85< corMax){
+                return true;
+            } else{
+                return false;
+            }
+        }
+
+        private bool DetectCryByNCC(ref Byte[] sound){
+            this.FftData = this.FFT(sound); // 直近の音を使う
+            double[] volumes = new double[this.WindowSize];
+            for (int n_volume=0; n_volume < volumes.Length; ++n_volume){
+                volumes[n_volume] = this.FftData[n_volume].Magnitude;
+            }
+            double[] cors = new double[this.CryVolumeFrequencies.Length];
+            for(int n = 0; n < this.CryVolumeFrequencies.Length; ++n){
                 double[] cryVolumeFrequency = this.CryVolumeFrequencies[n];
                 cors[n] = Correlation.Pearson(volumes, cryVolumeFrequency);
                 //Console.WriteLine("corr: "+cor);
@@ -196,22 +219,30 @@ namespace AutoKhoomii
             this.RecordCryWaveIn?.StopRecording();
             this.RecordedCryWave.Seek(0, SeekOrigin.Begin);
             Byte[] waveByte = this.RecordedCryWave.GetBuffer();
+            List<double[]> cryVolumeFrequenciesList = WaveToFFTProfile(ref waveByte);
+            this.CryVolumeFrequencies = cryVolumeFrequenciesList.ToArray();
+        }
+
+        private List<double[]> WaveToFFTProfile(ref byte[] waveByte){
             int numFFTSample = waveByte.Length / this.WindowSize;
+            List<double[]> cryVolumeFrequenciesList = new List<double[]>();
             for (int n=0; n < numFFTSample; ++n){
                 byte[] recorded = new byte[this.WindowSize];
                 Array.Copy(RecordedCryWave.GetBuffer(), n*this.WindowSize, recorded, 0, recorded.Length);
                 if(recorded.Max() == 0){
                     Console.WriteLine("sample_n:"+ n);
-                    return; // 全部０だったらそれ以上やらない。
+                    break; // 全部０だったらそれ以上やらない。
                 }
                 this.CryFrequencies.Add(this.FFT(this.RecordedCryWave.GetBuffer(), n*this.WindowSize));
                 double[] volumes = new double[this.WindowSize];
                 for (int n_volume=0; n_volume < volumes.Length; ++n_volume){
                     volumes[n_volume] = this.CryFrequencies[this.CryFrequencies.Count-1][n_volume].Magnitude;
                 }
-                this.CryVolumeFrequencies.Add(volumes);
+                cryVolumeFrequenciesList.Add(volumes);
             }
+            return cryVolumeFrequenciesList;
         }
+
         public Complex[] FFT(Byte[] soundByte){
             return (this.FFT(soundByte, 0));
         }
