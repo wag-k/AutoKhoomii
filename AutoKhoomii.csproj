@@ -76,6 +76,7 @@
     <Compile Include="RecordAmbientState.cs" />
     <Compile Include="RecordCryState.cs" />
     <Compile Include="StandbyPlayState.cs" />
+    <Compile Include="TemplateMatching.cs" />
     <Compile Include="WaveFIleHeader.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

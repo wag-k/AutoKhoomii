@@ -5,17 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoKhoomii"
         mc:Ignorable="d"
-        Title="AutoKhoomii" Height="136.695" Width="210.209" Loaded="Window_Loaded">
+        Title="AutoKhoomii" Height="199.028" Width="451.339" Loaded="Window_Loaded">
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="ButtonAuto" x:FieldModifier="public" Margin="5" Width="60" Click="ButtonAuto_Click">Auto</Button>
                 <Button x:Name="ButtonManual" x:FieldModifier="public" Margin="5" Width="60" Click="ButtonManual_Click">Manual</Button>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="ButtonRecordAmbient" x:FieldModifier="public" Margin="5" Width="80" Click="ButtonRecordAmbient_Click">RecAmbient</Button>
                 <Button x:Name="ButtonRecord" x:FieldModifier="public" Margin="5" Width="80" Click="ButtonRecord_Click">RecordCry</Button>
             </StackPanel>
+            <Canvas x:Name="RecordedSound" Width="300" Height="80" Background="AliceBlue">
+            </Canvas>
         </StackPanel>
     </Grid>
 </Window>

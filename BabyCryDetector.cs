@@ -13,6 +13,7 @@ using NAudio.Wave;
 using NAudio.Codecs;
 using NAudio.CoreAudioApi;
 
+using Matching;
 using ArrayOperation;
 
 namespace AutoKhoomii
@@ -28,7 +29,7 @@ namespace AutoKhoomii
         /// 時間ごとのスペクトル分布
         /// </summary>
         /// <value></value>
-        double[][] TimeFftDatas{get;set;}
+        double[][] TimeFFTDatas{get;set;}
         public int WindowSize{get;set;}
 
         public WaveInEvent RecordCryWaveIn{get;set;}
@@ -136,6 +137,11 @@ namespace AutoKhoomii
                 return false;
             }
             bool isDetected = DetectCryBySimpleXCorr(ref sound);
+            
+            this.RecordedWave.Dispose(); // 放っておくとどんどんメモリを食うのでクリア
+            this.RecordedWave = new MemoryStream();
+            this.RecordWaveIn?.StartRecording(); // 再開
+
             return isDetected;
         }
 
@@ -153,9 +159,6 @@ namespace AutoKhoomii
             }
             double corMax = cors.Max();
             Console.WriteLine("Max Corr: "+corMax);
-            this.RecordedWave.Dispose(); // 放っておくとどんどんメモリを食うのでクリア
-            this.RecordedWave = new MemoryStream();
-            this.RecordWaveIn?.StartRecording(); // 再開
             if(0.85< corMax){
                 return true;
             } else{
@@ -163,30 +166,19 @@ namespace AutoKhoomii
             }
         }
 
-        private bool DetectCryByNCC(ref Byte[] sound){
-            this.FftData = this.FFT(sound); // 直近の音を使う
-            double[] volumes = new double[this.WindowSize];
-            for (int n_volume=0; n_volume < volumes.Length; ++n_volume){
-                volumes[n_volume] = this.FftData[n_volume].Magnitude;
-            }
-            double[] cors = new double[this.CryVolumeFrequencies.Length];
-            for(int n = 0; n < this.CryVolumeFrequencies.Length; ++n){
-                double[] cryVolumeFrequency = this.CryVolumeFrequencies[n];
-                cors[n] = Correlation.Pearson(volumes, cryVolumeFrequency);
-                //Console.WriteLine("corr: "+cor);
-            }
-            double corMax = cors.Max();
-            Console.WriteLine("Max Corr: "+corMax);
-            this.RecordedWave.Dispose(); // 放っておくとどんどんメモリを食うのでクリア
-            this.RecordedWave = new MemoryStream();
-            this.RecordWaveIn?.StartRecording(); // 再開
+        private bool DetectCryByFastZNCC(ref Byte[] sound){
+            List<double[]> timeFFTDatasList = WaveToFFTProfile(ref sound);
+            this.TimeFFTDatas = timeFFTDatasList.ToArray();
+            
+            /*
             if(0.85< corMax){
                 return true;
             } else{
                 return false;
             }
+            */
+            return true;
         }
-
         /// <summary>
         /// 泣き声のサンプリングを行います。
         /// </summary>
@@ -219,12 +211,37 @@ namespace AutoKhoomii
             this.RecordCryWaveIn?.StopRecording();
             this.RecordedCryWave.Seek(0, SeekOrigin.Begin);
             Byte[] waveByte = this.RecordedCryWave.GetBuffer();
-            List<double[]> cryVolumeFrequenciesList = WaveToFFTProfile(ref waveByte);
+            // List<double[]> cryVolumeFrequenciesList = WaveToFFTProfile(ref waveByte);
+            List<double[]> cryVolumeFrequenciesList = WaveToSoundChunc(ref waveByte, this.WindowSize);
             this.CryVolumeFrequencies = cryVolumeFrequenciesList.ToArray();
+        }
+
+        /// <summary>
+        /// WaveSoundをWindowSize毎の塊で分けてdouble[]のListにします。
+        /// </summary>
+        /// <param name="waveByte"></param>
+        /// <returns></returns>
+        private List<double[]> WaveToSoundChunc(ref byte[] waveByte, int windowSize){
+            int numFFTSample = waveByte.Length / windowSize;
+            List<Complex[]> cryFrequencies = new List<Complex[]>();
+            List<double[]> cryVolumeFrequenciesList = new List<double[]>();
+            for (int n=0; n < numFFTSample; ++n){
+                double[] volumes = new double[windowSize];
+                for (int n_volume=0; n_volume < windowSize; ++n_volume){
+                    volumes[n_volume] = (double)waveByte[n*windowSize+n_volume];
+                }
+                if (volumes.Max() == 0){
+                    Console.WriteLine("sample_n:"+ n);
+                    break; // 全部０だったらそれ以上やらない。
+                }
+                cryVolumeFrequenciesList.Add(volumes);
+            }
+            return cryVolumeFrequenciesList;
         }
 
         private List<double[]> WaveToFFTProfile(ref byte[] waveByte){
             int numFFTSample = waveByte.Length / this.WindowSize;
+            List<Complex[]> cryFrequencies = new List<Complex[]>();
             List<double[]> cryVolumeFrequenciesList = new List<double[]>();
             for (int n=0; n < numFFTSample; ++n){
                 byte[] recorded = new byte[this.WindowSize];
@@ -233,10 +250,10 @@ namespace AutoKhoomii
                     Console.WriteLine("sample_n:"+ n);
                     break; // 全部０だったらそれ以上やらない。
                 }
-                this.CryFrequencies.Add(this.FFT(this.RecordedCryWave.GetBuffer(), n*this.WindowSize));
+                cryFrequencies.Add(this.FFT(this.RecordedCryWave.GetBuffer(), n*this.WindowSize));
                 double[] volumes = new double[this.WindowSize];
                 for (int n_volume=0; n_volume < volumes.Length; ++n_volume){
-                    volumes[n_volume] = this.CryFrequencies[this.CryFrequencies.Count-1][n_volume].Magnitude;
+                    volumes[n_volume] = cryFrequencies[cryFrequencies.Count-1][n_volume].Magnitude;
                 }
                 cryVolumeFrequenciesList.Add(volumes);
             }

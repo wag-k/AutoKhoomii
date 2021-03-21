@@ -25,9 +25,8 @@ namespace AutoKhoomii
         }
         public override void RecordCry(){
             MainWindow.BabyCryDetector.StopSamplingCry();
-            MainWindow.KhoomiiPlayer.Player = new System.Media.SoundPlayer(MainWindow.BabyCryDetector.RecordedWave);
-            MainWindow.KhoomiiPlayer.Player.Play();
             MainWindow.PlayState = MainWindow.StandbyPlayState;
+
         }
     }
 }
