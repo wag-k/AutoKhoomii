@@ -20,3 +20,7 @@ UTestAutoKhoomii/Properties/AssemblyInfo.cs
 UTestAutoKhoomii/bin/*
 *.dll
 bin/Debug/MathNet.Numerics.xml
+bin/x86/Debug32/*
+bin/Debug/*
+bin/Debug32/*
+UTestAutoKhoomii/obj/*

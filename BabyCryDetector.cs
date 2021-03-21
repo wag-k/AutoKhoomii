@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Runtime.InteropServices;
 using System.Numerics;
 using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
@@ -12,6 +15,8 @@ using MathNet.Numerics.Statistics;
 using NAudio.Wave;
 using NAudio.Codecs;
 using NAudio.CoreAudioApi;
+using OpenCvSharp;
+using OpenCvSharp.WpfExtensions;
 
 using Matching;
 using ArrayOperation;
@@ -46,12 +51,14 @@ namespace AutoKhoomii
         /// <value></value>
         public MemoryStream RecordedWave{get; private set;}
         public List<Complex[]> CryFrequencies{get;set;}
+        public List<Mat> CryImages;
         public double[][] CryVolumeFrequencies{get;set;}
         public AutoResetEvent AutoResetEvent{get;set;}
         public BabyCryDetector(){
-            this.WindowSize = 4096;
+            this.WindowSize = 4096*2; // FFTするので必ず２の累乗にしてください。
             this.SamplingRate = 44100;
             this.CryFrequencies = new List<Complex[]>();
+            this.CryImages = new List<Mat>();
             this.RecordCryWaveIn = this.CreateWaveInEvent();
             this.RecordWaveIn = this.CreateWaveInEvent();
             this.AutoResetEvent = new AutoResetEvent(false);
@@ -134,7 +141,7 @@ namespace AutoKhoomii
                 try{
                     this.RecordWaveIn?.StartRecording(); // 再開
                 } catch(InvalidOperationException e){
-                    Console.WriteLine(e.Message); // なぜかStopしていないことがある。
+                    //Console.WriteLine(e.Message); // なぜかStopしていないことがある。
                 }
                 return false;
             }
@@ -184,13 +191,35 @@ namespace AutoKhoomii
                 }
                 trimmedSound.AddRange(volumes);
             }
-            Console.WriteLine("Target Sound Length: " + trimmedSound.Count);
+
+            Mat soundImage = new Mat(sound.Length, 1, MatType.CV_8UC1, sound);
+            double maxXCorr = 0;
+            foreach(Mat cryImage in this.CryImages){
+                Mat res = new Mat();
+                Cv2.MatchTemplate(soundImage, cryImage, res, TemplateMatchModes.CCoeffNormed);
+
+                for (int nrow = 0; nrow < res.Rows; ++nrow){
+                    maxXCorr = maxXCorr < res.At<float>(nrow,1) ? res.At<float>(nrow, 1) : maxXCorr; 
+                }
+                //比較データ(配列)のうち、しきい値0.85以下を排除(0)にする
+                OpenCvSharp.Cv2.Threshold(res, res, 0.65, 1.0, ThresholdTypes.Tozero);
+                for(int nx = 0; nx < res.Rows; ++nx){
+                    for(int ny = 0; ny < res.Cols; ++ny){
+                        if(0 < res.At<float>(nx, ny)){
+                            Console.WriteLine("Pattern Detected!");
+                            return true;
+                        }
+                    }
+
+                } 
+            }
+            
+            Console.WriteLine("Pattern Not Included. Max XCorr: "+maxXCorr);
             return false;
         }
         private bool DetectCryByFastZNCC(ref Byte[] sound){
             List<double[]> timeFFTDatasList = WaveToFFTProfile(ref sound);
             this.TimeFFTDatas = timeFFTDatasList.ToArray();
-            
             /*
             if(0.85< corMax){
                 return true;
@@ -233,8 +262,8 @@ namespace AutoKhoomii
             this.RecordedCryWave.Seek(0, SeekOrigin.Begin);
             Byte[] waveByte = this.RecordedCryWave.GetBuffer();
             // List<double[]> cryVolumeFrequenciesList = WaveToFFTProfile(ref waveByte);
-            List<double[]> cryVolumeFrequenciesList = WaveToSoundChunc(ref waveByte, this.WindowSize);
-            this.CryVolumeFrequencies = cryVolumeFrequenciesList.ToArray();
+            this.CryImages = WaveToSoundChunc(ref waveByte, this.WindowSize);
+            //this.CryVolumeFrequencies = cryVolumeFrequenciesList.ToArray();
         }
 
         /// <summary>
@@ -242,22 +271,23 @@ namespace AutoKhoomii
         /// </summary>
         /// <param name="waveByte"></param>
         /// <returns></returns>
-        private List<double[]> WaveToSoundChunc(ref byte[] waveByte, int windowSize){
+        private List<Mat> WaveToSoundChunc(ref byte[] waveByte, int windowSize){
             int numFFTSample = waveByte.Length / windowSize;
-            List<Complex[]> cryFrequencies = new List<Complex[]>();
-            List<double[]> cryVolumeFrequenciesList = new List<double[]>();
+            List<Mat> cryImages = new List<Mat>();
             for (int n=0; n < numFFTSample; ++n){
-                double[] volumes = new double[windowSize];
+                byte[] volumes = new byte[windowSize];
                 for (int n_volume=0; n_volume < windowSize; ++n_volume){
-                    volumes[n_volume] = (double)waveByte[n*windowSize+n_volume];
+                    volumes[n_volume] = waveByte[n*windowSize+n_volume];
                 }
                 if (volumes.Max() == 0){
                     Console.WriteLine("sample_n:"+ n);
                     break; // 全部０だったらそれ以上やらない。
                 }
-                cryVolumeFrequenciesList.Add(volumes);
+                Mat cryImage = new Mat(volumes.Length, 1, MatType.CV_8UC1, volumes);
+                cryImages.Add(cryImage);
+                //Console.WriteLine(cryImage.Rows);
             }
-            return cryVolumeFrequenciesList;
+            return cryImages;
         }
 
         private List<double[]> WaveToFFTProfile(ref byte[] waveByte){
