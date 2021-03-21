@@ -13,6 +13,21 @@ namespace Matching
     class TemplateMatching
     {
         
+
+
+        /// <summary>
+        /// imgにpatが含まれているか調査します。
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="pat"></param>
+        /// <returns></returns>
+        public double[] FastZNCC1D<Type>(ref Type[] img, ref Type[] pat){            
+            if (img.Length < pat.Length){
+                throw new ArgumentException("pat must be smaller than img.");
+            }
+            
+        }
+
         /// <summary>
         /// imgにpatが含まれているか調査します。
         /// </summary>
@@ -66,6 +81,12 @@ namespace Matching
             return Enumerable.Range(0, values.Max(c => c.Count())).Select(i => values.Select(c => i < c.Count() ? c.ElementAt(i) : default(T)));
         }
 
-
+        public static int CalcNearestPower2(int num){
+            int res = 1;
+            while(res < num){
+                res*=2;
+            }
+            return res;
+        }
     }
 }

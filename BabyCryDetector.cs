@@ -31,6 +31,7 @@ namespace AutoKhoomii
         /// <value></value>
         double[][] TimeFFTDatas{get;set;}
         public int WindowSize{get;set;}
+        public int SamplingRate{get;set;}
 
         public WaveInEvent RecordCryWaveIn{get;set;}
         public WaveInEvent RecordWaveIn{get;set;}
@@ -48,7 +49,8 @@ namespace AutoKhoomii
         public double[][] CryVolumeFrequencies{get;set;}
         public AutoResetEvent AutoResetEvent{get;set;}
         public BabyCryDetector(){
-            this.WindowSize = 4096/4;
+            this.WindowSize = 4096;
+            this.SamplingRate = 44100;
             this.CryFrequencies = new List<Complex[]>();
             this.RecordCryWaveIn = this.CreateWaveInEvent();
             this.RecordWaveIn = this.CreateWaveInEvent();
@@ -75,7 +77,7 @@ namespace AutoKhoomii
 
             WaveInEvent waveInEvent = new WaveInEvent();
             waveInEvent.DeviceNumber = deviceNumber;
-            waveInEvent.WaveFormat = new WaveFormat(44100, WaveInEvent.GetCapabilities(deviceNumber).Channels);
+            waveInEvent.WaveFormat = new WaveFormat(this.SamplingRate, WaveInEvent.GetCapabilities(deviceNumber).Channels);
             return waveInEvent;
         }
 
@@ -115,7 +117,7 @@ namespace AutoKhoomii
         /// </summary>
         /// <returns>trueなら泣き声、falseは違う</returns>
         public bool DetectCry(){
-            this.RecordWaveIn?.StopRecording();
+            this.RecordWaveIn.StopRecording();
             // 非同期の処理がなんかうまくいかない。
             /*
             if(!this.AutoResetEvent.WaitOne(5000)){
@@ -136,14 +138,16 @@ namespace AutoKhoomii
                 }
                 return false;
             }
-            bool isDetected = DetectCryBySimpleXCorr(ref sound);
+            //bool isDetected = DetectCryBySimpleXCorr(ref sound);
+            bool isDetected = DetectCryByLineZNCC(ref sound, this.WindowSize);
             
             this.RecordedWave.Dispose(); // 放っておくとどんどんメモリを食うのでクリア
             this.RecordedWave = new MemoryStream();
-            this.RecordWaveIn?.StartRecording(); // 再開
+            this.RecordWaveIn.StartRecording(); // 再開
 
             return isDetected;
         }
+
 
         private bool DetectCryBySimpleXCorr(ref Byte[] sound){
             this.FftData = this.FFT(sound); // 直近の音を使う
@@ -166,6 +170,23 @@ namespace AutoKhoomii
             }
         }
 
+        private bool DetectCryByLineZNCC(ref Byte[] sound, int windowSize){
+            int numSample = sound.Length / windowSize;
+            List<double> trimmedSound = new List<double>();
+            for (int n=0; n < numSample; ++n){
+                double[] volumes = new double[windowSize];
+                for (int n_volume=0; n_volume < windowSize; ++n_volume){
+                    volumes[n_volume] = (double)sound[n*windowSize+n_volume];
+                }
+                if (volumes.Max() == 0){
+                    Console.WriteLine("sample_n:"+ n);
+                    break; // 全部０だったらそれ以上やらない。
+                }
+                trimmedSound.AddRange(volumes);
+            }
+            Console.WriteLine("Target Sound Length: " + trimmedSound.Count);
+            return false;
+        }
         private bool DetectCryByFastZNCC(ref Byte[] sound){
             List<double[]> timeFFTDatasList = WaveToFFTProfile(ref sound);
             this.TimeFFTDatas = timeFFTDatasList.ToArray();
