@@ -45,7 +45,7 @@ namespace AutoKhoomii
             this.TimerDetecting.Enabled = false; // やってる間は止めます
             if(MainWindow.BabyCryDetector.DetectCry()){
                 this.TimerDetecting.Enabled = false;
-                MainWindow.KhoomiiPlayer.Play();
+                MainWindow.KhoomiiPlayer.PlaySync();
             }
             this.TimerDetecting.Enabled = true;
         }

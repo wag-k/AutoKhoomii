@@ -175,6 +175,16 @@ namespace AutoKhoomii
             this.Player.Play();
         }
 
+        public void PlaySync(){
+            this.ReadyPlayer();
+            this.Player.Play();
+        }
+        private void PlaySync(ref MemoryStream wave){
+            wave.Seek(0, SeekOrigin.Begin);
+            this.Player = new SoundPlayer(wave);
+            this.Player.PlaySync();
+        }
+
         private void ReadyPlayer(){
             this.KhoomiiMelody.Seek(0, SeekOrigin.Begin);
             this.Player = new SoundPlayer(this.KhoomiiMelody);
